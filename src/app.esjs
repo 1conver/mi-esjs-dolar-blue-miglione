@@ -1,58 +1,58 @@
-importar { Terminal } desde "@es-js/terminal"
-importar { tiza } desde "https://cdn.jsdelivr.net/npm/@es-js/tiza@0.0.5/+esm"
-importar cryptojs desde "https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/+esm"
+importar { obtenerJson } desde 'https://cdn.esjs.dev/MYewdgzgLgBCBGUCmYkCcBSFwwLwwEMIBLMYNcEGAMwFczicAKWtAGwEoYBvAKBhihIsNEggAHWmKgE8MMePQE0NJFGAALFuw78YoqCDRhl8iUpWiJU6AQB0AK2xgmugL69eSAB7ijMlW44RBR0LBwPIA';
+importar { Terminal } desde '@es-js/terminal';
+importar cryptojs desde 'https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/+esm';
+
+importar.meta.env = {
+  VITE_TOKEN: "2e20a1476e0f3dfe936d6d680b57fe97",
+}
+
+funcion calcularMd5(cadena) {
+  retornar cryptojs.MD5(cadena).aCadena();
+}
 
 asincrono funcion obtenerCotizacion() {
-  Terminal.limpiar()
+  const dolarBlue = esperar obtenerJson('https://dolar-api-argentina.vercel.app/v1/dolares/blue');
 
-  const respuesta = esperar fetch(
-    "https://dolar-api-argentina.vercel.app/v1/dolares/blue"
-  )
+  Terminal.limpiar();
+  Terminal.escribir('Cotización del Dólar Blue');
+  Terminal.escribir('-------------------------');
 
-  const dolarBlue = esperar respuesta.json()
+  const fechaSolicitud = new Date().toLocaleString();
+  Terminal.escribir(`Fecha de solicitud: ${fechaSolicitud}`);
 
-  const promedio = Mate.redondearHaciaArriba((dolarBlue.compra + dolarBlue.venta) / 2)
-
-  Terminal.escribir("Cotización del Dolar en Argentina")
-
-  Terminal.escribir("Compra: $" + dolarBlue.compra)
-  Terminal.escribir("Venta: $" + dolarBlue.venta)
-  Terminal.escribir("Promedio: $" + promedio)
   Terminal.escribir("Fecha de actualización: " + dolarBlue.fechaActualizacion)
-
-  Terminal.escribir("Presiona ENTER para volver a consultar")
-  esperar Terminal.leerEnter()
-  obtenerCotizacion()
+  
+  Terminal.escribir(`Precio de compra: $${dolarBlue.compra}`);
+  Terminal.escribir(`Precio de venta: $${dolarBlue.venta}`);
+  
+  const promedio = (parseFloat(dolarBlue.compra) + parseFloat(dolarBlue.venta)) / 2;
+  Terminal.escribir(`Promedio: $${promedio.toFixed(2)}`);
 }
 
 asincrono funcion inicio() {
   si (
     !importar.meta.env ||
     !importar.meta.env.VITE_TOKEN ||
-    importar.meta.env.VITE_TOKEN.recortarEspacios() == ""
+    importar.meta.env.VITE_TOKEN.trim() === ''
   ) {
     retornar Terminal.escribir(
-      tiza.fondoRojo('Debes definir la Variable de Entorno "VITE_TOKEN"')
-    )
+      'Debes definir la Variable de Entorno "VITE_TOKEN"'
+    );
   }
 
-  Terminal.escribir("Hola! Ingresa la contraseña")
+  Terminal.escribir('¡Ey! Hola. Ingresa tu contraseña');
 
-  const contraseña = esperar Terminal.leer()
+  const contraseña = esperar Terminal.leer();
 
-  si (calcularMd5(contraseña) == importar.meta.env.VITE_TOKEN) {
-    obtenerCotizacion()
+  si (calcularMd5(contraseña) === importar.meta.env.VITE_TOKEN) {
+    obtenerCotizacion();
   } sino {
-    Terminal.escribir(tiza.fondoRojo("Contraseña incorrecta"))
-    Terminal.escribir("Presiona ENTER para volver a intentar")
-    esperar Terminal.leerEnter()
-    Terminal.limpiar()
-    inicio()
+    Terminal.escribir('Contraseña incorrecta');
+    Terminal.escribir('Presiona ENTER para volver a intentar');
+    esperar Terminal.leerEnter();
+    Terminal.limpiar();
+    inicio();
   }
 }
 
-funcion calcularMd5(cadena) {
-  retornar cryptojs.MD5(Cadena(cadena)).aCadena()
-}
-
-inicio()
+inicio();
